@@ -24,7 +24,7 @@ jobs:
 
       - run: |
           pip install -r requirements.txt
-          pip install pytest flake8
+          pip install pytest flake8 httpx
 
       - name: Run flake8
         run: |
