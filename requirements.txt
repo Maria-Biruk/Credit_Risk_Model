@@ -8,5 +8,4 @@ joblib
 pytest
 flake8
 mlflow
-httpx2
 httpx
