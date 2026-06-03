@@ -62,3 +62,24 @@ Modern credit risk systems combine both approaches:
 Interpretable models for compliance
 High-performance models for prediction
 Explainability tools to bridge both
+
+## Run
+
+To run the API locally using `uvicorn`:
+
+```powershell
+# from repository root
+python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
+# then POST to http://127.0.0.1:8000/predict
+```
+
+To run with Docker Compose (requires Docker Desktop):
+
+```powershell
+docker compose up --build -d
+docker compose logs -f api
+```
+
+## CI
+
+The repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` that runs `flake8` and `pytest` on push and pull requests.
