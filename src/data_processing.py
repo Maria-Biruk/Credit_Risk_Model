@@ -82,3 +82,28 @@ def build_pipeline():
         ("aggregation", AggregateFeatures()),
         ("preprocessor", build_preprocessor())
     ])
+
+
+# =========================
+# Convenience functions
+# =========================
+
+def create_rfm_features(df):
+    """Create RFM features DataFrame with columns: CustomerId, Recency, Frequency, Monetary
+
+    Recency: days since last transaction (w.r.t. snapshot date)
+    Frequency: number of transactions per customer
+    Monetary: total transaction amount per customer
+    """
+    data = df.copy()
+    data["TransactionStartTime"] = pd.to_datetime(data["TransactionStartTime"]) 
+
+    snapshot_date = data["TransactionStartTime"].max()
+
+    rfm = data.groupby("CustomerId").agg(
+        Recency=("TransactionStartTime", lambda x: (snapshot_date - x.max()).days),
+        Frequency=("TransactionId", "count"),
+        Monetary=("Amount", "sum"),
+    ).reset_index()
+
+    return rfm
