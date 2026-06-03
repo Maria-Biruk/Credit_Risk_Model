@@ -1,7 +1,11 @@
+fastapi
+uvicorn
+pydantic
+scikit-learn
 pandas
 numpy
-matplotlib
-seaborn
-scikit-learn
-jupyter
+joblib
+pytest
+flake8
 mlflow
+httpx

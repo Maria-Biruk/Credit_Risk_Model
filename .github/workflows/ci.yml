@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, task-1, task-2]
+    branches: [main, task-6, task-5, task-4]
   pull_request:
     branches: [main]
 
@@ -10,19 +10,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    env:
+      PYTHONPATH: .
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
-        run: |
+      - run: |
+          # Upgrade pip and install httpx first to ensure TestClient dependency is available
+          python -m pip install --upgrade pip
+          pip install httpx==0.28.1
           pip install -r requirements.txt
+          pip install pytest flake8
 
-      - name: Run basic check
+      - name: Run flake8
         run: |
-          python -c "import pandas, numpy, sklearn; print('CI OK')"
+          flake8 . --max-line-length=120
+
+      - run: pytest -v --disable-warnings
+
+      - run: python -c "import pandas, numpy, sklearn; print('CI OK')"
