@@ -1,54 +1,84 @@
 import pandas as pd
-import numpy as np
+
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
+from sklearn.impute import SimpleImputer
 
 
-class CreditFeatureEngineer:
-    def transform(self, df):
-        df = df.copy()
+# =========================
+# DATE FEATURES
+# =========================
+class DateFeatures(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
 
-        df["Amount"] = pd.to_numeric(df["Amount"], errors="coerce")
-
+    def transform(self, X):
+        df = X.copy()
         df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"])
 
+        df["transaction_hour"] = df["TransactionStartTime"].dt.hour
+        df["transaction_day"] = df["TransactionStartTime"].dt.day
+        df["transaction_month"] = df["TransactionStartTime"].dt.month
+        df["transaction_year"] = df["TransactionStartTime"].dt.year
+
+        return df
+
+
+# =========================
+# AGGREGATION
+# =========================
+class AggregateFeatures(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df = X.copy()
+
         agg = df.groupby("CustomerId").agg(
-            Total_Transaction_Amount=("Amount", "sum"),
-            Avg_Transaction_Amount=("Amount", "mean"),
-            Transaction_Count=("TransactionId", "count"),
-            Std_Transaction_Amount=("Amount", "std"),
-            Avg_Transaction_Hour=("TransactionStartTime", lambda x: x.dt.hour.mean()),
-            Most_Common_Month=("TransactionStartTime", lambda x: x.dt.month.mode()[0])
+            total_transaction_amount=("Amount", "sum"),
+            avg_transaction_amount=("Amount", "mean"),
+            transaction_count=("TransactionId", "count"),
+            std_transaction_amount=("Amount", "std"),
+            max_transaction_amount=("Amount", "max"),
+            min_transaction_amount=("Amount", "min")
         ).reset_index()
 
-        agg["Std_Transaction_Amount"] = agg["Std_Transaction_Amount"].fillna(0)
+        agg["std_transaction_amount"] = agg["std_transaction_amount"].fillna(0)
 
         return agg
 
 
-def create_rfm_features(df):
+# =========================
+# PREPROCESSOR
+# =========================
+def build_preprocessor():
+    numeric_features = [
+        "total_transaction_amount",
+        "avg_transaction_amount",
+        "transaction_count",
+        "std_transaction_amount",
+        "max_transaction_amount",
+        "min_transaction_amount"
+    ]
 
-    df = df.copy()
-    df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"])
+    numeric_transformer = Pipeline(steps=[
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler())
+    ])
 
-    snapshot_date = df["TransactionStartTime"].max()
+    return ColumnTransformer([
+        ("num", numeric_transformer, numeric_features)
+    ])
 
-    rfm = df.groupby("CustomerId").agg(
-        Recency=("TransactionStartTime", lambda x: (snapshot_date - x.max()).days),
-        Frequency=("TransactionId", "count"),
-        Monetary=("Amount", "sum")
-    ).reset_index()
 
-    scaler = StandardScaler()
-    scaled = scaler.fit_transform(rfm[["Recency", "Frequency", "Monetary"]])
-
-    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-    rfm["cluster"] = kmeans.fit_predict(scaled)
-
-    cluster_summary = rfm.groupby("cluster")[["Frequency", "Monetary"]].mean()
-
-    high_risk_cluster = cluster_summary["Frequency"].idxmin()
-
-    rfm["is_high_risk"] = (rfm["cluster"] == high_risk_cluster).astype(int)
-
-    return rfm
+# =========================
+# PIPELINE
+# =========================
+def build_pipeline():
+    return Pipeline(steps=[
+        ("date_features", DateFeatures()),
+        ("aggregation", AggregateFeatures()),
+        ("preprocessor", build_preprocessor())
+    ])
