@@ -1,0 +1,23 @@
+artifact_path: file:c:/Users/Hp/Desktop/Projects/10Academy/credit-risk-model/notebooks/mlruns/1/models/m-f8b6b56e88724f9791eab017ccfcf083/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.5
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+    skops_trusted_types: null
+mlflow_version: 3.13.0
+model_id: m-f8b6b56e88724f9791eab017ccfcf083
+model_size_bytes: 409738
+model_uuid: m-f8b6b56e88724f9791eab017ccfcf083
+prompts: null
+run_id: 720ce110fd5c47929a772ab0f86a3a44
+utc_time_created: '2026-06-03 12:37:12.454273'

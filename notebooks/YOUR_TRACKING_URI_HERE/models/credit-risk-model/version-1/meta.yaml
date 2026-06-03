@@ -1,0 +1,16 @@
+creation_timestamp: 1780492137623
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1780492137623
+model_id: m-45f2a08e6da24e389d60ff540a0d325d
+name: credit-risk-model
+run_id: 372f1bd16fd9438b98a2b2ca9537d4c6
+run_link: null
+source: models:/m-45f2a08e6da24e389d60ff540a0d325d
+status: READY
+status_message: null
+storage_location: file:c:/Users/Hp/Desktop/Projects/10Academy/credit-risk-model/notebooks/YOUR_TRACKING_URI_HERE/487194884048966721/models/m-45f2a08e6da24e389d60ff540a0d325d/artifacts
+user_id: null
+version: 1
+workspace: default
